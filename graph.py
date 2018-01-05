@@ -114,6 +114,11 @@ class Digraph(object):
         if not (src in self.edges and dest in self.edges):
             raise ValueError('Node not in graph')
         self.edges[src].append(ed)
+    
+    def getNode(self, name):
+        for n in self.edges:
+            if n == name:
+                return n
 
 
 # ================================================================
