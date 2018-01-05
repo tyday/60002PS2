@@ -55,8 +55,8 @@ class Edge(object):
 
 class WeightedEdge(Edge):
     def __init__(self, src, dest, total_distance, outdoor_distance):
-        # self.src = src
-        # self.dest = dest
+        self.src = src
+        self.dest = dest
         self.total_distance = total_distance
         self.outdoor_distance = outdoor_distance
         
@@ -82,6 +82,9 @@ class Digraph(object):
         for edges in self.edges.values():
             for edge in edges:
                 edge_strs.append(str(edge))
+        # for src in self.edges:
+        #     for dest in self.edges[src]:
+        #         edge_strs.append(str(dest))#src.get_name() + '->' + dest.get_name())
         edge_strs = sorted(edge_strs)  # sort alphabetically
         return '\n'.join(edge_strs)  # concat edge_strs with "\n"s between them
 
@@ -105,9 +108,12 @@ class Digraph(object):
         in the  graph."""
         src = edge.get_source()
         dest = edge.get_destination()
+        total = edge.get_total_distance()
+        outdoor = edge.get_outdoor_distance()
+        ed = WeightedEdge(src, dest, total, outdoor)
         if not (src in self.edges and dest in self.edges):
             raise ValueError('Node not in graph')
-        self.edges[src].append(dest)
+        self.edges[src].append(ed)
 
 
 # ================================================================
@@ -167,3 +173,21 @@ class TestGraph(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+    # g = Digraph()
+    # na = Node('a')
+    # nb = Node('b')
+    # nc = Node('c')
+    # g.add_node(na)
+    # g.add_node(nb)
+    # g.add_node(nc)
+    # # e1 = WeightedEdge(na, nb, 15, 10)
+    # # e2 = WeightedEdge(na, nc, 14, 6)
+    # # e3 = WeightedEdge(nb, nc, 3, 1)
+    # e1 = Edge(na,nb)
+    # e2 = Edge(na,nc)
+    # e3 = Edge(nb,nc)
+    # g.add_edge(e1)
+    # g.add_edge(e2)
+    # g.add_edge(e3)
+    # print(e1,e2,e3)
+    # print(g)
