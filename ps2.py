@@ -117,12 +117,16 @@ def get_best_path(digraph, start, end, path, max_dist_outdoors, best_dist,
         return path,0,0
     for node in digraph.get_edges_for_node(start):
         if node not in path: #avoid cycles
-            if best_dist== None or len(path) < len(best_path):
+            if best_dist== None or int(node.get_total_distance()) < best_dist: #len(path) < len(best_path):
                 newPath, newDistance, newOutdoor = get_best_path(digraph,node.get_destination() , end, path, max_dist_outdoors,best_dist, best_path)
                 newDistance = newDistance + int(node.get_total_distance())
                 newOutdoor = newOutdoor + int(node.get_outdoor_distance())
                 if newPath != None:
                     if best_dist == None or newDistance < best_dist:
+                        best_path = newPath 
+                        best_dist = newDistance
+                        best_out = newOutdoor
+                    elif newDistance < best_dist and newOutdoor < max_dist_outdoors:
                         best_path = newPath 
                         best_dist = newDistance
                         best_out = newOutdoor
@@ -164,6 +168,9 @@ def directed_dfs(digraph, start, end, max_total_dist, max_dist_outdoors):
     # TODO
     return get_best_path(digraph, digraph.getNode(start), digraph.getNode(end), [], max_dist_outdoors,None,None)
     pass
+# g = load_map('test_load_map.txt')
+g = load_map('mit_map.txt')
+print(directed_dfs(g,g.getNode('32'),g.getNode('56'),100,100))
 
 
 # ================================================================
@@ -252,4 +259,4 @@ class Ps2Test(unittest.TestCase):
 
 if __name__ == "__main__":
     pass
-    unittest.main()
+    # unittest.main()
