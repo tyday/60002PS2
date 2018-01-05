@@ -112,28 +112,37 @@ def get_best_path(digraph, start, end, path, max_dist_outdoors, best_dist,
         If there exists no path that satisfies max_total_dist and
         max_dist_outdoors constraints, then return None.
     """
-    path = path + [start]
+    pathlist, incDist,incOut = path
+    pathlist = pathlist + [start]
+    path = pathlist,incDist,incOut
+    #print('Current DFS path:', path)
     if start == end:
-        return path,0,0
+        return pathlist,0,0
     for node in digraph.get_edges_for_node(start):
-        if node not in path: #avoid cycles
-            if best_dist== None or int(node.get_total_distance()) < best_dist: #len(path) < len(best_path):
+        if node.get_destination() not in pathlist: #avoid cycles
+            if best_dist== None or incDist < best_dist: #len(path) < len(best_path):
                 newPath, newDistance, newOutdoor = get_best_path(digraph,node.get_destination() , end, path, max_dist_outdoors,best_dist, best_path)
-                newDistance = newDistance + int(node.get_total_distance())
-                newOutdoor = newOutdoor + int(node.get_outdoor_distance())
+                if newDistance != None:
+                    newDistance = newDistance + int(node.get_total_distance())
+                    newOutdoor = newOutdoor + int(node.get_outdoor_distance())
+                elif newDistance == None:
+                    newDistance = int(node.get_total_distance())
+                    newOutdoor = int(node.get_outdoor_distance())
                 if newPath != None:
-                    if best_dist == None or newDistance < best_dist:
+                    if best_dist == None: #or newDistance < best_dist:
+                        if newOutdoor <= max_dist_outdoors:
+                            best_path = newPath 
+                            best_dist = newDistance
+                            incOut = newOutdoor
+                    elif newDistance <= best_dist and newOutdoor <= max_dist_outdoors:
                         best_path = newPath 
                         best_dist = newDistance
-                        best_out = newOutdoor
-                    elif newDistance < best_dist and newOutdoor < max_dist_outdoors:
-                        best_path = newPath 
-                        best_dist = newDistance
-                        best_out = newOutdoor
-    return best_path, best_dist, best_out
+                        incOut = newOutdoor
+    return best_path, best_dist, incOut
     
 # g = load_map('test_load_map.txt')
-# print(get_best_path(g,g.getNode('a'),g.getNode('d'),[],0,None,None))
+# path_tuple = ([],0,0)
+# print(get_best_path(g,g.getNode('a'),g.getNode('d'),path_tuple,0,None,None))
 
 
 # Problem 3c: Implement directed_dfs
@@ -166,11 +175,34 @@ def directed_dfs(digraph, start, end, max_total_dist, max_dist_outdoors):
         max_dist_outdoors constraints, then raises a ValueError.
     """
     # TODO
-    return get_best_path(digraph, digraph.getNode(start), digraph.getNode(end), [], max_dist_outdoors,None,None)
-    pass
+    path_tuple = ([],0,0)
+    returnpath = get_best_path(digraph, digraph.getNode(start), digraph.getNode(end), path_tuple, max_dist_outdoors,None,None)
+    path, dist, outdist = returnpath
+    if returnpath == None:
+        raise ValueError
+    if dist == None or dist > max_total_dist:
+        raise ValueError
+    if outdist == None or outdist > max_dist_outdoors:
+        raise ValueError
+    print(returnpath)
+    return path
+
+def getDistance(digraph, path):
+    total_dist = 0
+    outdoor_dist = 0
+    for i in range(len(path) - 1):
+        for edge in digraph.edges[path[i]]:
+            if edge.dest == path[i + 1]:
+                total_dist += int(edge.get_total_distance())
+                outdoor_dist += int(edge.get_outdoor_distance())
+    return (total_dist, outdoor_dist)
+
+
 # g = load_map('test_load_map.txt')
-g = load_map('mit_map.txt')
-print(directed_dfs(g,g.getNode('32'),g.getNode('56'),100,100))
+# g = load_map('mit_map.txt')
+# testpath = ['1', '3', '10', '4', '12', '24', '34', '36', '32']
+# print(getDistance(g,testpath))
+# print(directed_dfs(g,g.getNode('1'),g.getNode('32'),1000,0))
 
 
 # ================================================================
@@ -259,4 +291,4 @@ class Ps2Test(unittest.TestCase):
 
 if __name__ == "__main__":
     pass
-    # unittest.main()
+    unittest.main()
